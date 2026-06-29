@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { WalletApiService } from '../../../core/services/wallet-api.service';
@@ -12,7 +12,10 @@ import { XofPipe } from '../../../shared/pipes/xof.pipe';
   template: `
     <div class="page-header">
       <h2>Liste des portefeuilles</h2>
-      <a routerLink="/agent/create" class="btn-primary">+ Nouveau portefeuille</a>
+      <div class="header-actions">
+        <a routerLink="/agent/search" class="btn-search">🔍 Rechercher</a>
+        <a routerLink="/agent/create" class="btn-primary">+ Nouveau</a>
+      </div>
     </div>
 
     @if (loading) {
@@ -20,8 +23,11 @@ import { XofPipe } from '../../../shared/pipes/xof.pipe';
     }
 
     @if (!loading && wallets.length === 0) {
-      <div class="empty">Aucun portefeuille trouvé.
-        <button (click)="seed()" class="btn-seed">Initialiser les données</button>
+      <div class="empty">
+        <p>Aucun portefeuille trouvé.</p>
+        <button (click)="seed()" class="btn-seed" [disabled]="seeding()">
+          {{ seeding() ? '⏳ Génération en cours...' : '🚀 Initialiser les données (10 wallets)' }}
+        </button>
       </div>
     }
 
@@ -63,14 +69,22 @@ import { XofPipe } from '../../../shared/pipes/xof.pipe';
   styles: [`
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
     h2 { color: #e94560; }
+    .header-actions { display: flex; gap: .75rem; align-items: center; }
     .btn-primary {
       background: #e94560; color: #fff; padding: .5rem 1.2rem;
       border-radius: 8px; text-decoration: none; font-size: .9rem;
     }
+    .btn-search {
+      background: #0f3460; color: #aaa; padding: .5rem 1rem;
+      border-radius: 8px; text-decoration: none; font-size: .9rem;
+      border: 1px solid #1a1a2e;
+    }
     .btn-seed {
       background: #3498db; color: #fff; border: none;
-      padding: .5rem 1rem; border-radius: 6px; cursor: pointer; margin-left: 1rem;
+      padding: .6rem 1.4rem; border-radius: 8px; cursor: pointer; margin-top: .75rem;
+      font-size: .9rem;
     }
+    .btn-seed:disabled { opacity: .6; cursor: not-allowed; }
     .table-wrapper { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; background: #0f3460; border-radius: 10px; overflow: hidden; }
     th { background: #1a1a2e; color: #aaa; padding: .75rem 1rem; text-align: left; font-size: .85rem; }
@@ -111,7 +125,18 @@ export class WalletListComponent implements OnInit {
     });
   }
 
+  seeding = signal(false);
+
   seed(): void {
-    this.api.getWallets(0, 10).subscribe(); // trigger seed from UI is separate
+    this.seeding.set(true);
+    this.api.seed(10, 50).subscribe({
+      next: () => {
+        setTimeout(() => {
+          this.seeding.set(false);
+          this.loadPage(0);
+        }, 3000);
+      },
+      error: () => this.seeding.set(false)
+    });
   }
 }

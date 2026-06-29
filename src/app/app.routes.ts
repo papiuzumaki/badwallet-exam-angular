@@ -33,6 +33,11 @@ export const routes: Routes = [
         path: 'withdraw',
         loadComponent: () =>
           import('./features/agent/withdraw/withdraw.component').then(m => m.WithdrawComponent)
+      },
+      {
+        path: 'search',
+        loadComponent: () =>
+          import('./features/agent/wallet-search/wallet-search.component').then(m => m.WalletSearchComponent)
       }
     ]
   },

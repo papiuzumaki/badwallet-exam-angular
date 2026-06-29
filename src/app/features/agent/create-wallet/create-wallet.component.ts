@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { WalletApiService } from '../../../core/services/wallet-api.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { phoneValidator } from '../../../shared/validators/wallet.validators';
@@ -8,7 +8,7 @@ import { phoneValidator } from '../../../shared/validators/wallet.validators';
 @Component({
   selector: 'app-create-wallet',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   template: `
     <div class="form-page">
       <h2>Créer un portefeuille</h2>

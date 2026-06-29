@@ -19,6 +19,7 @@ import { Router } from '@angular/router';
       @if (auth.isAgent()) {
         <div class="links">
           <a routerLink="/agent/wallets" routerLinkActive="active">Portefeuilles</a>
+          <a routerLink="/agent/search" routerLinkActive="active">Rechercher</a>
           <a routerLink="/agent/create" routerLinkActive="active">Nouveau</a>
           <a routerLink="/agent/deposit" routerLinkActive="active">Dépôt</a>
           <a routerLink="/agent/withdraw" routerLinkActive="active">Retrait</a>
