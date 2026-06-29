@@ -1,19 +1,33 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
+import { SidebarComponent, NavItem } from '../../shared/components/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-agent-layout',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent],
+  imports: [RouterOutlet, SidebarComponent],
   template: `
-    <app-navbar />
-    <main class="container">
+    <app-sidebar [navItems]="nav" />
+    <div class="shell">
       <router-outlet />
-    </main>
+    </div>
   `,
   styles: [`
-    .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+    :host { display: flex; min-height: 100vh; }
+    .shell {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 32px 36px;
+      max-width: 1100px;
+    }
   `]
 })
-export class AgentLayoutComponent {}
+export class AgentLayoutComponent {
+  nav: NavItem[] = [
+    { label: 'Portefeuilles',  route: '/agent/wallets', icon: 'wallet'    },
+    { label: 'Rechercher',     route: '/agent/search',  icon: 'search'    },
+    { label: 'Nouveau wallet', route: '/agent/create',  icon: 'plus'      },
+    { label: 'Dépôt',         route: '/agent/deposit', icon: 'arrow-down' },
+    { label: 'Retrait',       route: '/agent/withdraw', icon: 'arrow-up'  },
+  ];
+}

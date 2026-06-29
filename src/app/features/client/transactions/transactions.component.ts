@@ -4,83 +4,99 @@ import { AuthService } from '../../../core/services/auth.service';
 import { WalletApiService } from '../../../core/services/wallet-api.service';
 import { XofPipe } from '../../../shared/pipes/xof.pipe';
 import { Transaction } from '../../../core/models/wallet.model';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-transactions',
   standalone: true,
-  imports: [CommonModule, XofPipe],
+  imports: [CommonModule, XofPipe, IconComponent],
   template: `
-    <div class="page">
-      <h2>Historique des transactions</h2>
-
-      <div class="filters">
-        <button
-          *ngFor="let t of typeFilters"
-          [class.active]="activeFilter() === t.value"
-          (click)="setFilter(t.value)"
-          class="filter-btn"
-        >{{ t.label }}</button>
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Transactions</h1>
+        <p class="page-sub">{{ filtered().length }} résultat(s)</p>
       </div>
+    </div>
 
-      @if (loading()) {
-        <div class="loading">Chargement...</div>
-      }
-
-      @if (!loading() && filtered().length === 0) {
-        <div class="empty">Aucune transaction trouvée</div>
-      }
-
-      @for (tx of filtered(); track tx.id) {
-        <div class="tx-card">
-          <div class="tx-header">
-            <span class="badge" [class]="tx.type.toLowerCase()">{{ typeLabel(tx.type) }}</span>
-            <code class="ref">{{ tx.reference }}</code>
-            <span class="date">{{ tx.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-          </div>
-          <div class="tx-body">
-            <div class="desc">{{ tx.description }}</div>
-            <div class="amounts">
-              <span>Montant : <strong>{{ tx.amount | xof }}</strong></span>
-              @if (tx.fees > 0) {
-                <span class="fees">Frais : {{ tx.fees | xof }}</span>
-              }
-              <span>Solde : <strong class="balance">{{ tx.balanceAfter | xof }}</strong></span>
-            </div>
-          </div>
-        </div>
+    <div class="filters">
+      @for (f of typeFilters; track f.value) {
+        <button
+          class="filter-chip"
+          [class.active]="activeFilter() === f.value"
+          (click)="activeFilter.set(f.value)"
+        >{{ f.label }}</button>
       }
     </div>
+
+    @if (loading()) {
+      <div class="loading-state">Chargement des transactions...</div>
+    }
+
+    @if (!loading()) {
+      <div class="card">
+        @if (filtered().length === 0) {
+          <div class="empty-state">
+            <app-icon name="history" [size]="28" />
+            <p>Aucune transaction pour ce filtre</p>
+          </div>
+        }
+        @if (filtered().length > 0) {
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Description</th>
+                  <th>Référence</th>
+                  <th style="text-align:right">Montant</th>
+                  <th style="text-align:right">Frais</th>
+                  <th style="text-align:right">Solde après</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (tx of filtered(); track tx.id) {
+                  <tr>
+                    <td><span class="badge" [class]="txBadge(tx.type)">{{ typeLabel(tx.type) }}</span></td>
+                    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ tx.description }}</td>
+                    <td><code>{{ tx.reference }}</code></td>
+                    <td style="text-align:right;font-weight:600" [class.text-green]="tx.balanceAfter > tx.balanceBefore">{{ tx.amount | xof }}</td>
+                    <td style="text-align:right;color:var(--text-3)">{{ tx.fees > 0 ? (tx.fees | xof) : '—' }}</td>
+                    <td style="text-align:right;font-weight:600;color:var(--text)">{{ tx.balanceAfter | xof }}</td>
+                    <td style="white-space:nowrap">{{ tx.createdAt | date:'dd MMM yyyy, HH:mm' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    }
   `,
   styles: [`
-    .page h2 { color: #e94560; margin-bottom: 1rem; }
-    .filters { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
-    .filter-btn {
-      background: #0f3460; border: 1px solid #1a1a2e;
-      color: #aaa; padding: .35rem .9rem; border-radius: 20px;
-      cursor: pointer; font-size: .8rem;
+    .page-header { margin-bottom: 16px; }
+    .filters {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
     }
-    .filter-btn.active { background: #e94560; border-color: #e94560; color: #fff; }
-    .tx-card {
-      background: #0f3460; border-radius: 10px; padding: 1rem 1.25rem;
-      margin-bottom: .75rem; border-left: 4px solid #1a1a2e;
+    .filter-chip {
+      padding: 5px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-2);
+      transition: all .12s;
     }
-    .tx-header { display: flex; align-items: center; gap: .75rem; margin-bottom: .5rem; }
-    .badge {
-      padding: .2rem .6rem; border-radius: 20px; font-size: .75rem; font-weight: 600;
+    .filter-chip:hover { color: var(--text); border-color: var(--border-2); }
+    .filter-chip.active {
+      background: var(--surface-3);
+      border-color: var(--border-2);
+      color: var(--text);
     }
-    .badge.deposit { background: #1b4332; color: #2ecc71; }
-    .badge.withdraw { background: #4a1c1c; color: #e74c3c; }
-    .badge.transfer_send { background: #1a2a4a; color: #3498db; }
-    .badge.transfer_receive { background: #1c3a2a; color: #27ae60; }
-    .badge.payment { background: #3d2b1a; color: #e67e22; }
-    .ref { flex: 1; color: #e94560; font-size: .8rem; background: #1a1a2e; padding: .15rem .4rem; border-radius: 4px; }
-    .date { color: #666; font-size: .8rem; }
-    .desc { color: #aaa; font-size: .85rem; margin-bottom: .4rem; }
-    .amounts { display: flex; gap: 1.5rem; font-size: .9rem; color: #ccc; }
-    .amounts strong { color: #eee; }
-    .fees { color: #e74c3c; }
-    .balance { color: #2ecc71 !important; }
-    .loading, .empty { text-align: center; color: #aaa; padding: 3rem; }
   `]
 })
 export class TransactionsComponent implements OnInit {
@@ -89,40 +105,35 @@ export class TransactionsComponent implements OnInit {
 
   transactions = signal<Transaction[]>([]);
   loading = signal(false);
-  activeFilter = signal<string>('ALL');
+  activeFilter = signal('ALL');
 
   typeFilters = [
-    { label: 'Tous', value: 'ALL' },
-    { label: 'Dépôts', value: 'DEPOSIT' },
-    { label: 'Retraits', value: 'WITHDRAW' },
-    { label: 'Envois', value: 'TRANSFER_SEND' },
-    { label: 'Reçus', value: 'TRANSFER_RECEIVE' },
-    { label: 'Paiements', value: 'PAYMENT' },
+    { label: 'Tous',      value: 'ALL'              },
+    { label: 'Dépôts',    value: 'DEPOSIT'          },
+    { label: 'Retraits',  value: 'WITHDRAW'         },
+    { label: 'Envois',    value: 'TRANSFER_SEND'    },
+    { label: 'Reçus',     value: 'TRANSFER_RECEIVE' },
+    { label: 'Paiements', value: 'PAYMENT'          },
   ];
 
   filtered() {
     const f = this.activeFilter();
-    if (f === 'ALL') return this.transactions();
-    return this.transactions().filter(tx => tx.type === f);
+    return f === 'ALL' ? this.transactions() : this.transactions().filter(tx => tx.type === f);
   }
 
   ngOnInit(): void {
     this.loading.set(true);
     this.api.getTransactions(this.auth.phone()).subscribe({
-      next: (txs) => { this.transactions.set(txs); this.loading.set(false); },
+      next: txs => { this.transactions.set(txs); this.loading.set(false); },
       error: () => this.loading.set(false)
     });
   }
 
-  setFilter(value: string): void {
-    this.activeFilter.set(value);
+  typeLabel(type: string): string {
+    return ({ DEPOSIT:'Dépôt', WITHDRAW:'Retrait', TRANSFER_SEND:'Envoi', TRANSFER_RECEIVE:'Reçu', PAYMENT:'Paiement' } as any)[type] ?? type;
   }
 
-  typeLabel(type: string): string {
-    const labels: Record<string, string> = {
-      DEPOSIT: 'Dépôt', WITHDRAW: 'Retrait',
-      TRANSFER_SEND: 'Envoi', TRANSFER_RECEIVE: 'Reçu', PAYMENT: 'Paiement'
-    };
-    return labels[type] ?? type;
+  txBadge(type: string): string {
+    return ({ DEPOSIT:'badge badge-green', WITHDRAW:'badge badge-red', TRANSFER_SEND:'badge badge-blue', TRANSFER_RECEIVE:'badge badge-green', PAYMENT:'badge badge-amber' } as any)[type] ?? 'badge badge-gray';
   }
 }

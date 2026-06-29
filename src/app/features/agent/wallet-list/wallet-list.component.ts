@@ -4,100 +4,99 @@ import { RouterLink } from '@angular/router';
 import { WalletApiService } from '../../../core/services/wallet-api.service';
 import { Wallet, WalletPage } from '../../../core/models/wallet.model';
 import { XofPipe } from '../../../shared/pipes/xof.pipe';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-wallet-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, XofPipe],
+  imports: [CommonModule, RouterLink, XofPipe, IconComponent],
   template: `
     <div class="page-header">
-      <h2>Liste des portefeuilles</h2>
-      <div class="header-actions">
-        <a routerLink="/agent/search" class="btn-search">🔍 Rechercher</a>
-        <a routerLink="/agent/create" class="btn-primary">+ Nouveau</a>
+      <div>
+        <h1 class="page-title">Portefeuilles</h1>
+        <p class="page-sub">{{ totalElements }} comptes enregistrés</p>
       </div>
+      <a routerLink="/agent/create" class="btn btn-primary">
+        <app-icon name="plus" [size]="14" /> Nouveau portefeuille
+      </a>
     </div>
 
-    @if (loading) {
-      <div class="loading">Chargement...</div>
+    @if (loading()) {
+      <div class="loading-state">Chargement des portefeuilles...</div>
     }
 
-    @if (!loading && wallets.length === 0) {
-      <div class="empty">
-        <p>Aucun portefeuille trouvé.</p>
-        <button (click)="seed()" class="btn-seed" [disabled]="seeding()">
-          {{ seeding() ? '⏳ Génération en cours...' : '🚀 Initialiser les données (10 wallets)' }}
-        </button>
+    @if (!loading() && wallets.length === 0) {
+      <div class="card">
+        <div class="empty-state">
+          <app-icon name="wallet" [size]="32" />
+          <p>Aucun portefeuille trouvé</p>
+          <button class="btn btn-ghost" style="margin-top:16px" (click)="seed()" [disabled]="seeding()">
+            @if (seeding()) { Génération en cours... }
+            @else { Initialiser les données de test }
+          </button>
+        </div>
       </div>
     }
 
     @if (wallets.length > 0) {
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Code</th>
-              <th>Téléphone</th>
-              <th>Email</th>
-              <th>Solde</th>
-              <th>Devise</th>
-              <th>Créé le</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (w of wallets; track w.id) {
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
               <tr>
-                <td><code>{{ w.code }}</code></td>
-                <td>{{ w.phoneNumber }}</td>
-                <td>{{ w.email }}</td>
-                <td class="amount">{{ w.balance | xof: w.currency }}</td>
-                <td>{{ w.currency }}</td>
-                <td>{{ w.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                <th>Code</th>
+                <th>Téléphone</th>
+                <th>Email</th>
+                <th>Devise</th>
+                <th style="text-align:right">Solde</th>
+                <th>Créé le</th>
               </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              @for (w of wallets; track w.id) {
+                <tr>
+                  <td><code>{{ w.code }}</code></td>
+                  <td>{{ w.phoneNumber }}</td>
+                  <td style="color:var(--text-2)">{{ w.email }}</td>
+                  <td><span class="badge badge-gray">{{ w.currency }}</span></td>
+                  <td style="text-align:right;font-weight:600;color:var(--green)">{{ w.balance | xof: w.currency }}</td>
+                  <td style="color:var(--text-3)">{{ w.createdAt | date:'dd MMM yyyy' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
 
-      <div class="pagination">
-        <button [disabled]="currentPage === 0" (click)="loadPage(currentPage - 1)">← Précédent</button>
-        <span>Page {{ currentPage + 1 }} / {{ totalPages }}</span>
-        <button [disabled]="currentPage >= totalPages - 1" (click)="loadPage(currentPage + 1)">Suivant →</button>
+        <div class="pagination">
+          <span class="pag-info">Page {{ currentPage + 1 }} sur {{ totalPages }}</span>
+          <div class="pag-controls">
+            <button class="btn btn-ghost btn-sm" [disabled]="currentPage === 0" (click)="loadPage(currentPage - 1)">
+              Précédent
+            </button>
+            <button class="btn btn-ghost btn-sm" [disabled]="currentPage >= totalPages - 1" (click)="loadPage(currentPage + 1)">
+              Suivant
+            </button>
+          </div>
+        </div>
       </div>
     }
   `,
   styles: [`
-    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-    h2 { color: #e94560; }
-    .header-actions { display: flex; gap: .75rem; align-items: center; }
-    .btn-primary {
-      background: #e94560; color: #fff; padding: .5rem 1.2rem;
-      border-radius: 8px; text-decoration: none; font-size: .9rem;
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
     }
-    .btn-search {
-      background: #0f3460; color: #aaa; padding: .5rem 1rem;
-      border-radius: 8px; text-decoration: none; font-size: .9rem;
-      border: 1px solid #1a1a2e;
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
     }
-    .btn-seed {
-      background: #3498db; color: #fff; border: none;
-      padding: .6rem 1.4rem; border-radius: 8px; cursor: pointer; margin-top: .75rem;
-      font-size: .9rem;
-    }
-    .btn-seed:disabled { opacity: .6; cursor: not-allowed; }
-    .table-wrapper { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; background: #0f3460; border-radius: 10px; overflow: hidden; }
-    th { background: #1a1a2e; color: #aaa; padding: .75rem 1rem; text-align: left; font-size: .85rem; }
-    td { padding: .75rem 1rem; color: #eee; border-top: 1px solid #1a1a2e; font-size: .9rem; }
-    code { background: #1a1a2e; padding: .15rem .4rem; border-radius: 4px; color: #e94560; }
-    .amount { font-weight: 600; color: #2ecc71; }
-    .pagination { display: flex; gap: 1rem; align-items: center; margin-top: 1rem; justify-content: center; color: #aaa; }
-    .pagination button {
-      background: #0f3460; border: 1px solid #333; color: #eee;
-      padding: .4rem .9rem; border-radius: 6px; cursor: pointer;
-    }
-    .pagination button:disabled { opacity: .4; cursor: default; }
-    .loading, .empty { text-align: center; padding: 3rem; color: #aaa; }
+    .pag-info { font-size: 12px; color: var(--text-3); }
+    .pag-controls { display: flex; gap: 6px; }
   `]
 })
 export class WalletListComponent implements OnInit {
@@ -106,36 +105,30 @@ export class WalletListComponent implements OnInit {
   wallets: Wallet[] = [];
   currentPage = 0;
   totalPages = 1;
-  loading = false;
+  totalElements = 0;
+  loading = signal(false);
+  seeding = signal(false);
 
-  ngOnInit(): void {
-    this.loadPage(0);
-  }
+  ngOnInit(): void { this.loadPage(0); }
 
   loadPage(page: number): void {
-    this.loading = true;
+    this.loading.set(true);
     this.api.getWallets(page, 10).subscribe({
       next: (res: WalletPage) => {
         this.wallets = res.content;
         this.currentPage = res.number;
         this.totalPages = res.totalPages;
-        this.loading = false;
+        this.totalElements = res.totalElements;
+        this.loading.set(false);
       },
-      error: () => { this.loading = false; }
+      error: () => this.loading.set(false)
     });
   }
-
-  seeding = signal(false);
 
   seed(): void {
     this.seeding.set(true);
     this.api.seed(10, 50).subscribe({
-      next: () => {
-        setTimeout(() => {
-          this.seeding.set(false);
-          this.loadPage(0);
-        }, 3000);
-      },
+      next: () => setTimeout(() => { this.seeding.set(false); this.loadPage(0); }, 3000),
       error: () => this.seeding.set(false)
     });
   }
