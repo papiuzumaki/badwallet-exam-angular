@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Wallet, WalletPage, Transaction, BalanceResponse } from '../models/wallet.model';
+import { Wallet, WalletPage, Transaction, BalanceResponse, WalletStats } from '../models/wallet.model';
 
 @Injectable({ providedIn: 'root' })
 export class WalletApiService {
@@ -47,5 +47,13 @@ export class WalletApiService {
 
   payFactures(phoneNumber: string, serviceName: string, factureReferences: string[]): Observable<any> {
     return this.http.post(`${this.BASE}/pay-factures`, { phoneNumber, serviceName, factureReferences });
+  }
+
+  getStats(phone: string): Observable<WalletStats> {
+    return this.http.get<WalletStats>(`${this.BASE}/${encodeURIComponent(phone)}/stats`);
+  }
+
+  seed(numWallets = 10, eventsPerWallet = 50): Observable<any> {
+    return this.http.post(`${this.BASE}/seed?numWallets=${numWallets}&eventsPerWallet=${eventsPerWallet}`, {});
   }
 }
