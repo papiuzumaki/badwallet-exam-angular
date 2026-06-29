@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { WalletApiService } from '../../../core/services/wallet-api.service';
 import { XofPipe } from '../../../shared/pipes/xof.pipe';
+import { PhonePipe } from '../../../shared/pipes/phone.pipe';
 import { Wallet, Transaction, WalletStats } from '../../../core/models/wallet.model';
 import { phoneValidator } from '../../../shared/validators/wallet.validators';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
@@ -10,7 +11,7 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
 @Component({
   selector: 'app-wallet-search',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, XofPipe, IconComponent],
+  imports: [ReactiveFormsModule, CommonModule, XofPipe, PhonePipe, IconComponent],
   template: `
     <div class="page-header">
       <div>
@@ -57,7 +58,7 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
           <div class="card-body info-grid">
             <div class="info-item">
               <span class="info-label">Téléphone</span>
-              <span class="info-value">{{ wallet()!.phoneNumber }}</span>
+              <span class="info-value">{{ wallet()!.phoneNumber | phone }}</span>
             </div>
             <div class="info-item">
               <span class="info-label">Email</span>

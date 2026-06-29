@@ -58,10 +58,16 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/client/transfer/transfer.component').then(m => m.TransferComponent)
       },
+      { path: 'bills', redirectTo: 'bills/current', pathMatch: 'full' },
       {
-        path: 'bills',
+        path: 'bills/current',
         loadComponent: () =>
           import('./features/client/bills/bills.component').then(m => m.BillsComponent)
+      },
+      {
+        path: 'bills/history',
+        loadComponent: () =>
+          import('./features/client/bills-history/bills-history.component').then(m => m.BillsHistoryComponent)
       },
       {
         path: 'transactions',

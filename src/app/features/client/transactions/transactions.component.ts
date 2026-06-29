@@ -1,5 +1,6 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { WalletApiService } from '../../../core/services/wallet-api.service';
 import { XofPipe } from '../../../shared/pipes/xof.pipe';
@@ -9,7 +10,7 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
 @Component({
   selector: 'app-transactions',
   standalone: true,
-  imports: [CommonModule, XofPipe, IconComponent],
+  imports: [CommonModule, FormsModule, XofPipe, IconComponent],
   template: `
     <div class="page-header">
       <div>
@@ -26,6 +27,20 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
           (click)="activeFilter.set(f.value)"
         >{{ f.label }}</button>
       }
+    </div>
+
+    <div class="date-filters">
+      <div class="field" style="flex:1;min-width:140px">
+        <label>Du</label>
+        <input type="date" class="input" [(ngModel)]="dateDebut" [max]="today" />
+      </div>
+      <div class="field" style="flex:1;min-width:140px">
+        <label>Au</label>
+        <input type="date" class="input" [(ngModel)]="dateFin" [max]="today" />
+      </div>
+      <button class="btn btn-ghost btn-sm" (click)="resetDates()" style="align-self:flex-end">
+        Réinitialiser
+      </button>
     </div>
 
     @if (loading()) {
@@ -79,7 +94,14 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
       display: flex;
       gap: 6px;
       flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .date-filters {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
       margin-bottom: 16px;
+      flex-wrap: wrap;
     }
     .filter-chip {
       padding: 5px 12px;
@@ -106,6 +128,9 @@ export class TransactionsComponent implements OnInit {
   transactions = signal<Transaction[]>([]);
   loading = signal(false);
   activeFilter = signal('ALL');
+  today = new Date().toISOString().split('T')[0];
+  dateDebut = '';
+  dateFin = '';
 
   typeFilters = [
     { label: 'Tous',      value: 'ALL'              },
@@ -117,9 +142,15 @@ export class TransactionsComponent implements OnInit {
   ];
 
   filtered() {
+    let list = this.transactions();
     const f = this.activeFilter();
-    return f === 'ALL' ? this.transactions() : this.transactions().filter(tx => tx.type === f);
+    if (f !== 'ALL') list = list.filter(tx => tx.type === f);
+    if (this.dateDebut) list = list.filter(tx => tx.createdAt >= this.dateDebut);
+    if (this.dateFin)  list = list.filter(tx => tx.createdAt <= this.dateFin + 'T23:59:59');
+    return list;
   }
+
+  resetDates(): void { this.dateDebut = ''; this.dateFin = ''; }
 
   ngOnInit(): void {
     this.loading.set(true);

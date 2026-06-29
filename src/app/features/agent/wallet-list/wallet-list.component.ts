@@ -4,12 +4,13 @@ import { RouterLink } from '@angular/router';
 import { WalletApiService } from '../../../core/services/wallet-api.service';
 import { Wallet, WalletPage } from '../../../core/models/wallet.model';
 import { XofPipe } from '../../../shared/pipes/xof.pipe';
+import { PhonePipe } from '../../../shared/pipes/phone.pipe';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-wallet-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, XofPipe, IconComponent],
+  imports: [CommonModule, RouterLink, XofPipe, PhonePipe, IconComponent],
   template: `
     <div class="page-header">
       <div>
@@ -56,7 +57,7 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
               @for (w of wallets; track w.id) {
                 <tr>
                   <td><code>{{ w.code }}</code></td>
-                  <td>{{ w.phoneNumber }}</td>
+                  <td>{{ w.phoneNumber | phone }}</td>
                   <td style="color:var(--text-2)">{{ w.email }}</td>
                   <td><span class="badge badge-gray">{{ w.currency }}</span></td>
                   <td style="text-align:right;font-weight:600;color:var(--green)">{{ w.balance | xof: w.currency }}</td>

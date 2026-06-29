@@ -24,9 +24,10 @@ import { SidebarComponent, NavItem } from '../../shared/components/sidebar/sideb
 })
 export class ClientLayoutComponent {
   nav: NavItem[] = [
-    { label: 'Tableau de bord', route: '/client/dashboard',    icon: 'chart'    },
-    { label: 'Transfert',       route: '/client/transfer',     icon: 'transfer' },
-    { label: 'Factures',        route: '/client/bills',        icon: 'receipt'  },
-    { label: 'Transactions',    route: '/client/transactions', icon: 'history'  },
+    { label: 'Tableau de bord',   route: '/client/dashboard',       icon: 'chart'    },
+    { label: 'Transfert',         route: '/client/transfer',        icon: 'transfer' },
+    { label: 'Factures du mois',  route: '/client/bills/current',   icon: 'receipt'  },
+    { label: 'Histo. factures',   route: '/client/bills/history',   icon: 'calendar' },
+    { label: 'Transactions',      route: '/client/transactions',    icon: 'history'  },
   ];
 }
