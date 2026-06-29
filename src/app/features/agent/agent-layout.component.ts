@@ -24,10 +24,10 @@ import { SidebarComponent, NavItem } from '../../shared/components/sidebar/sideb
 })
 export class AgentLayoutComponent {
   nav: NavItem[] = [
-    { label: 'Portefeuilles',  route: '/agent/wallets', icon: 'wallet'    },
-    { label: 'Rechercher',     route: '/agent/search',  icon: 'search'    },
-    { label: 'Nouveau wallet', route: '/agent/create',  icon: 'plus'      },
-    { label: 'Dépôt',         route: '/agent/deposit', icon: 'arrow-down' },
-    { label: 'Retrait',       route: '/agent/withdraw', icon: 'arrow-up'  },
+    { label: 'Portefeuilles',  route: '/admin/wallets', icon: 'wallet'    },
+    { label: 'Rechercher',     route: '/admin/search',  icon: 'search'    },
+    { label: 'Nouveau wallet', route: '/admin/create',  icon: 'plus'      },
+    { label: 'Dépôt',         route: '/admin/deposit', icon: 'arrow-down' },
+    { label: 'Retrait',       route: '/admin/withdraw', icon: 'arrow-up'  },
   ];
 }

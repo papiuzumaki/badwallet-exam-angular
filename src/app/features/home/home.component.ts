@@ -254,7 +254,7 @@ export class HomeComponent {
 
   enterAsAgent(): void {
     this.auth.loginAsAgent();
-    this.router.navigate(['/agent/wallets']);
+    this.router.navigate(['/admin/wallets']);
   }
 
   enterAsClient(): void {

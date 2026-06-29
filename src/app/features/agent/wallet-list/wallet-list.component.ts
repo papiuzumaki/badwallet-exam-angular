@@ -17,7 +17,7 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
         <h1 class="page-title">Portefeuilles</h1>
         <p class="page-sub">{{ totalElements }} comptes enregistrés</p>
       </div>
-      <a routerLink="/agent/create" class="btn btn-primary">
+      <a routerLink="/admin/create" class="btn btn-primary">
         <app-icon name="plus" [size]="14" /> Nouveau portefeuille
       </a>
     </div>

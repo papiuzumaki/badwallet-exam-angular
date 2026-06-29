@@ -8,7 +8,7 @@ export const routes: Routes = [
       import('./features/home/home.component').then(m => m.HomeComponent)
   },
   {
-    path: 'agent',
+    path: 'admin',
     loadComponent: () =>
       import('./features/agent/agent-layout.component').then(m => m.AgentLayoutComponent),
     canActivate: [agentGuard],

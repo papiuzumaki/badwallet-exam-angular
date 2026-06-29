@@ -61,7 +61,7 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
           </div>
 
           <div class="form-actions">
-            <a routerLink="/agent/wallets" class="btn btn-ghost">Annuler</a>
+            <a routerLink="/admin/wallets" class="btn btn-ghost">Annuler</a>
             <button type="submit" class="btn btn-primary" [disabled]="form.invalid || loading()">
               @if (loading()) { Création en cours... }
               @else { Créer le portefeuille }
@@ -110,7 +110,7 @@ export class CreateWalletComponent {
     this.api.createWallet(this.form.value as any).subscribe({
       next: (w) => {
         this.toast.success(`Portefeuille ${w.code} créé`);
-        this.router.navigate(['/agent/wallets']);
+        this.router.navigate(['/admin/wallets']);
       },
       error: () => this.loading.set(false)
     });
