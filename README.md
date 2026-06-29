@@ -1,27 +1,108 @@
-# BadwalletDashboard
+# BadWallet Dashboard
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.17.
+Application web SPA développée avec **Angular 17** pour gérer des portefeuilles mobiles BadWallet. Elle consomme l'API Spring Boot `badwallet-api` et expose deux espaces distincts : Agent et Client.
 
-## Development server
+## Examen
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+**Sujet** : Développement Frontend Angular  
+**Étudiant** : Pape Oumar Ndiaye  
+**Backend** : [badwallet-api](https://github.com/papiuzumaki/badwallet-api)
 
-## Code scaffolding
+---
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Stack technique
 
-## Build
+| Technologie | Usage |
+|---|---|
+| Angular 17 | Framework SPA (Standalone Components) |
+| Angular Signals | Gestion d'état réactive (`signal`, `computed`, `asReadonly`) |
+| Angular Router | Routing avec lazy-loading + guards |
+| ReactiveFormsModule | Formulaires avec validateurs personnalisés |
+| HttpClient | Appels API avec intercepteur fonctionnel |
+| Chart.js | Graphique doughnut sur le tableau de bord |
+| SCSS | Design system avec CSS custom properties |
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+---
 
-## Running unit tests
+## Fonctionnalités Angular requises
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+| Exigence | Implémentation |
+|---|---|
+| Signals | `AuthService`, `BalanceStore`, tous les composants |
+| State Management | `BalanceStore` — état global du solde via `signal()` + `computed()` |
+| Guards | `agentGuard`, `clientGuard` — `CanActivateFn` |
+| Intercepteur HTTP | `errorInterceptor` — `HttpInterceptorFn` via `withInterceptors()` |
+| Pipe personnalisé | `XofPipe` — formatage monétaire XOF via `Intl.NumberFormat('fr-FR')` |
+| Reactive Forms | Validateurs : `phoneValidator` (regex `/^7[0-9]{8}$/`), `differentPhoneValidator` |
+| Lazy loading | Tous les modules Agent et Client chargés à la demande |
+| Chart.js | Doughnut 70% cutout, `AfterViewInit` / `OnDestroy` |
 
-## Running end-to-end tests
+---
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## Espace Agent
 
-## Further help
+| Page | Description |
+|---|---|
+| Portefeuilles | Liste paginée de tous les wallets + bouton seed |
+| Recherche | Recherche par numéro de téléphone + stats + dernières transactions |
+| Nouveau wallet | Formulaire de création avec validation |
+| Dépôt | Dépôt sur un wallet par ID (CREDIT_CARD / WALLET_TARGET) |
+| Retrait | Retrait avec calcul des frais en temps réel (1%, max 5 000 XOF) |
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+## Espace Client
+
+| Page | Description |
+|---|---|
+| Tableau de bord | Stats (solde, dépôts, retraits, transferts) + graphique doughnut |
+| Transfert | Envoi d'argent vers un autre numéro |
+| Factures | Factures du mois courant, filtrage, paiement par sélection |
+| Transactions | Historique complet avec filtre par type |
+
+---
+
+## Prérequis
+
+- Node.js 18+
+- Angular CLI 17
+- [badwallet-api](https://github.com/papiuzumaki/badwallet-api) démarré sur le port `8080`
+- `payment-service` démarré sur le port `8081`
+
+## Démarrage
+
+```bash
+# Installer les dépendances
+npm install
+
+# Lancer le serveur de développement
+npm start
+# → http://localhost:4200
+```
+
+## Build production
+
+```bash
+npm run build
+# Artefacts dans dist/badwallet-dashboard/
+```
+
+---
+
+## Structure du projet
+
+```
+src/app/
+├── core/
+│   ├── guards/         # agentGuard, clientGuard
+│   ├── interceptors/   # errorInterceptor
+│   ├── models/         # Wallet, Transaction, Facture, WalletStats
+│   ├── services/       # WalletApiService, BillingApiService, AuthService, ToastService
+│   └── store/          # BalanceStore (Signals)
+├── shared/
+│   ├── components/     # IconComponent, SidebarComponent, ToastComponent
+│   ├── pipes/          # XofPipe
+│   └── validators/     # phoneValidator, differentPhoneValidator
+└── features/
+    ├── home/           # Page d'accueil + sélection de rôle
+    ├── agent/          # wallet-list, wallet-search, create-wallet, deposit, withdraw
+    └── client/         # dashboard, transfer, bills, transactions
+```
