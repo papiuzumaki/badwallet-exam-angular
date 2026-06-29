@@ -71,16 +71,13 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
           </div>
           <div class="card-body">
             @for (tx of results(); track tx.id) {
-              <div class="tx-block">
-                <div class="tb-header">
-                  <span class="badge" [class]="tx.type === 'TRANSFER_SEND' ? 'badge badge-blue' : 'badge badge-green'">
-                    {{ tx.type === 'TRANSFER_SEND' ? 'Débit' : 'Crédit' }}
-                  </span>
+              @if (tx.type === 'TRANSFER_SEND') {
+                <div class="tx-block">
+                  <div class="r-row"><span>Montant envoyé</span><strong>{{ tx.amount | xof }}</strong></div>
+                  <div class="r-row"><span>Nouveau solde</span><strong class="text-green">{{ tx.balanceAfter | xof }}</strong></div>
+                  <div class="r-row"><span>Référence</span><code>{{ tx.reference }}</code></div>
                 </div>
-                <div class="r-row"><span>Montant</span><strong>{{ tx.amount | xof }}</strong></div>
-                <div class="r-row"><span>Solde après</span><strong class="text-green">{{ tx.balanceAfter | xof }}</strong></div>
-                <div class="r-row"><span>Référence</span><code>{{ tx.reference }}</code></div>
-              </div>
+              }
             }
           </div>
         </div>
