@@ -53,10 +53,12 @@ export interface NavItem {
               <span class="user-phone">{{ store.phone() }}</span>
             }
           </div>
-          <button class="logout-btn" (click)="logout()" title="Déconnexion">
-            <app-icon name="logout" [size]="15" />
-          </button>
         </div>
+
+        <button class="logout-btn-full" (click)="logout()">
+          <app-icon name="logout" [size]="14" />
+          Déconnexion
+        </button>
       </div>
     </aside>
   `,
@@ -184,16 +186,25 @@ export interface NavItem {
     }
     .user-role  { font-size: 12px; font-weight: 500; color: var(--text); }
     .user-phone { font-size: 11px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .logout-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-3);
-      padding: 4px;
+    .logout-btn-full {
       display: flex;
-      border-radius: var(--radius-sm);
-      transition: color .12s, background .12s;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 8px 10px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-2);
+      font-size: 12.5px;
+      font-weight: 500;
+      transition: background .12s, color .12s, border-color .12s;
     }
-    .logout-btn:hover { color: var(--red); background: var(--red-bg); }
+    .logout-btn-full:hover {
+      background: var(--red-bg);
+      color: var(--red);
+      border-color: var(--red-border);
+    }
   `]
 })
 export class SidebarComponent {
